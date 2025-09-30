@@ -44,8 +44,8 @@ jobs:
       - name: Run PHPUnit tests
         run: ./vendor/bin/phpunit -d memory_limit=-1
 
-      - name: List coverage files
-        run: ls -l coverage
+      - name: Check coverage
+        run: ./check_coverage.php
 
       - uses: sonarsource/sonarqube-scan-action@master
         env:
