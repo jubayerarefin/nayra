@@ -8,6 +8,7 @@ use ProcessMaker\Nayra\Contracts\Bpmn\FlowNodeInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\MessageEventDefinitionInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\MessageInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\OperationInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\ThrowEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TokenInterface;
 use ProcessMaker\Nayra\Contracts\Engine\ExecutionInstanceInterface;
 
@@ -88,7 +89,33 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
      */
     public function execute(EventDefinitionInterface $event, FlowNodeInterface $target, ExecutionInstanceInterface $instance = null, TokenInterface $token = null)
     {
+        $throwEvent = $token->getOwnerElement();
+        $this->evaluateMessagePayload($throwEvent, $token, $instance);
         return $this;
+    }
+
+    private function evaluateMessagePayload(ThrowEventInterface $throwEvent, TokenInterface $token, ExecutionInstanceInterface $targetInstance)
+    {
+        $dataInputs = $throwEvent->getDataInputs();
+        // Initialize message payload
+        $payload = [];
+        // Associate data inputs to message payload
+        $associations = $throwEvent->getDataInputAssociations();
+        $data = $token->getInstance()->getDataStore()->getData();
+        foreach ($associations as $association) {
+            $assignments = $association->getAssignments();
+            foreach ($assignments as $assignment) {
+                $from = $assignment->getFrom();
+                $to = trim($assignment->getTo()->getBody());
+                // Dot Notation
+                $payload[] = ['key' => $to, 'value' => $from($data)];
+            }
+        }
+        // Update data into target $instance
+        $dataStore = $targetInstance->getDataStore();
+        foreach ($payload as $load) {
+            $dataStore->setDotData($load['key'], $load['value']);
+        }
     }
 
     /**
