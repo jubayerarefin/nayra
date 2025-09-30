@@ -31,5 +31,5 @@ interface DataAssociationInterface extends EntityInterface
     /**
      * @return AssignmentInterface[]
      */
-    public function getAssignmentInterfaces();
+    public function getAssignments();
 }

@@ -76,4 +76,14 @@ interface DataStoreInterface extends ItemAwareElementInterface
      * @return $this
      */
     public function putData($name, $data);
+
+    /**
+     * Set data using dot notation.
+     *
+     * @param string $path Dot notation path (e.g., 'user.profile.name')
+     * @param mixed $value Value to set
+     *
+     * @return $this
+     */
+    public function setDotData($path, $value);
 }

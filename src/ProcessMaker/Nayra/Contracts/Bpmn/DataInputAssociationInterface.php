@@ -7,4 +7,6 @@ namespace ProcessMaker\Nayra\Contracts\Bpmn;
  */
 interface DataInputAssociationInterface extends DataAssociationInterface
 {
+    const BPMN_PROPERTY_TARGET_REF = 'targetRef';
+    const BPMN_PROPERTY_ASSIGNMENT = 'assignment';
 }
