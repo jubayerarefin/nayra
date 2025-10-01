@@ -204,10 +204,6 @@ trait BaseTrait
     {
         $this->properties[$name] = isset($this->properties[$name]) ? $this->properties[$name] : new Collection;
         $this->properties[$name]->push($value);
-        $localNameSetter = 'set' . $name . 's';
-        if (isset($this->$localNameSetter)) {
-            $this->$localNameSetter($this->properties[$name]);
-        }
 
         return $this;
     }
