@@ -382,10 +382,19 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                 DataInputAssociationInterface::class,
                 [
                     DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF]],
+                    DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF]],
                     DataInputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT => ['n', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT]],
+                    DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION]],
                 ],
             ],
             DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => [self::IS_REFERENCE, []],
+            DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => [self::IS_REFERENCE, []],
+            DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => [
+                FormalExpressionInterface::class,
+                [
+                    FormalExpressionInterface::BPMN_PROPERTY_BODY => ['1', self::DOM_ELEMENT_BODY],
+                ],
+            ],
             DataInputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT => [
                 AssignmentInterface::class,
                 [

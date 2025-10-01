@@ -10,9 +10,9 @@ interface DataAssociationInterface extends EntityInterface
     /**
      * Get the source of the data association.
      *
-     * @return ItemAwareElementInterface[]
+     * @return ItemAwareElementInterface
      */
-    public function getSources();
+    public function getSource();
 
     /**
      * Get the target of the data association.

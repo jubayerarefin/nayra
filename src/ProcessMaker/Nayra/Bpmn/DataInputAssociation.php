@@ -11,7 +11,12 @@ class DataInputAssociation implements DataInputAssociationInterface
 {
     use BaseTrait;
 
-    public function getSources()
+    protected function initDataInputAssociation()
+    {
+        $this->properties[static::BPMN_PROPERTY_ASSIGNMENT] = new Collection;
+    }
+
+    public function getSource()
     {
         return $this->getProperty(static::BPMN_PROPERTY_SOURCES_REF);
     }

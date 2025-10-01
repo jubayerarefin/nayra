@@ -98,10 +98,30 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
     {
         // Initialize message payload
         $payload = [];
-        // Associate data inputs to message payload
         $associations = $throwEvent->getDataInputAssociations();
-        $data = $token->getInstance()->getDataStore()->getData();
+        // Get data from source token instance
+        $sourceDataStore = $token->getInstance()->getDataStore();
+
+        // Associate data inputs to message payload
         foreach ($associations as $association) {
+            $data = $sourceDataStore->getData();
+            $source = $association->getSource();
+            $target = $association->getTarget();
+            $transformation = $association->getTransformation();
+
+            // Add reference to source
+            $hasSource = $source && $source->getName();
+            $data['sourceRef'] = $hasSource ? $sourceDataStore->getDotData($source->getName()) : null;
+
+            // Apply transformation if exists
+            if ($transformation) {
+                $value = $transformation($data);
+                $payload[] = ['key' => $target->getName(), 'value' => $value];
+            } elseif ($hasSource) {
+                $payload[] = ['key' => $target->getName(), 'value' => $data['sourceRef']];
+            }
+
+            // Evaluate assignments
             $assignments = $association->getAssignments();
             foreach ($assignments as $assignment) {
                 $from = $assignment->getFrom();
