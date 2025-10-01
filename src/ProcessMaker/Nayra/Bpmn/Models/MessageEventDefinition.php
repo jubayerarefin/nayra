@@ -96,7 +96,6 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
 
     private function evaluateMessagePayload(ThrowEventInterface $throwEvent, TokenInterface $token, ExecutionInstanceInterface $targetInstance)
     {
-        $dataInputs = $throwEvent->getDataInputs();
         // Initialize message payload
         $payload = [];
         // Associate data inputs to message payload
