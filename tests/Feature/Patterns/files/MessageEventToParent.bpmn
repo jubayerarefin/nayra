@@ -10,6 +10,7 @@
         <participant id="Participant_1f4jbtu" name="main" processRef="Process_1" />
         <participant id="Participant_0qod0gz" name="sub-process" processRef="Process_1gn8a5z" />
     </collaboration>
+    <dataStore id="ds_email" name="user.email"/>
     <process id="Process_1" isExecutable="false">
         <startEvent id="StartEvent">
             <outgoing>SequenceFlow_0h21x7r</outgoing>
@@ -47,7 +48,7 @@
         <scriptTask id="Task_B" name="B" scriptFormat="application/x-betsy">
             <incoming>Flow_1a3yzli</incoming>
             <outgoing>Flow_0ntd3ys</outgoing>
-            <script><![CDATA[return ['user' => ['firstname' => 'admin', 'lastname' => 'user']];]]></script>
+            <script><![CDATA[return ['user' => ['firstname' => 'admin', 'lastname' => 'user', 'username' => 'admin', 'email' => 'admin@example.com']];]]></script>
         </scriptTask>
         <scriptTask id="Task_E" name="E" scriptFormat="application/x-betsy">
             <incoming>Flow_1r1agfn</incoming>
@@ -65,17 +66,25 @@
             <incoming>Flow_0ntd3ys</incoming>
             <outgoing>Flow_1r1agfn</outgoing>
             <!-- Define the input of the message -->
-            <dataInput id="din_fullName" name="fullName" /> <!-- N -->
+            <dataInput id="din_login" name="login" /> <!-- N -->
             <dataInput id="din_status" name="status" /> <!-- N -->
-            <!-- Data association -->
+            <dataInput id="din_email" name="email" /> <!-- N -->
+            <!-- Simple Data association -->
             <dataInputAssociation> <!-- N -->
-                <targetRef>din_fullName</targetRef>
+                <targetRef>din_email</targetRef>
+                <sourceRef>ds_email</sourceRef>
+            </dataInputAssociation>
+            <!-- Data association with transformation and assignment -->
+            <dataInputAssociation> <!-- N -->
+                <targetRef>din_login</targetRef>
+                <transformation><![CDATA[ strtoupper("{$data['user']['username']}") ]]></transformation>
                 <assignment> <!-- N -->
                     <!-- FEEL expression mapping -->
                     <from><![CDATA[ "{$data['user']['firstname']} {$data['user']['lastname']}" ]]></from>
                     <to>fullName</to>
                 </assignment>
             </dataInputAssociation>
+            <!-- Data association with dot notation assignment -->
             <dataInputAssociation> <!-- N -->
                 <targetRef>din_status</targetRef>
                 <assignment> <!-- N -->
@@ -91,7 +100,8 @@
             </dataInputAssociation>
             <!-- InputSet definition -->
             <inputSet> <!-- N -->
-                <dataInputRefs>din_fullName</dataInputRefs>
+                <dataInputRefs>din_email</dataInputRefs>
+                <dataInputRefs>din_login</dataInputRefs>
                 <dataInputRefs>din_status</dataInputRefs>
             </inputSet>
             <!-- Message Event Definition -->

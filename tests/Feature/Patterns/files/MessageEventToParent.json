@@ -11,6 +11,8 @@
             "Task_F"
         ],
         "output": {
+            "email": "admin@example.com",
+            "login": "ADMIN",
             "fullName": "admin user",
             "status": {
                 "name": "COMPLETED",
