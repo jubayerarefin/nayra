@@ -111,13 +111,14 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
 
             // Add reference to source
             $hasSource = $source && $source->getName();
+            $hasTarget = $target && $target->getName();
             $data['sourceRef'] = $hasSource ? $sourceDataStore->getDotData($source->getName()) : null;
 
             // Apply transformation if exists
-            if ($transformation) {
+            if ($hasTarget && $transformation && is_callable($transformation)) {
                 $value = $transformation($data);
                 $payload[] = ['key' => $target->getName(), 'value' => $value];
-            } elseif ($hasSource) {
+            } elseif ($hasTarget && $hasSource) {
                 $payload[] = ['key' => $target->getName(), 'value' => $data['sourceRef']];
             }
 
@@ -126,8 +127,9 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
             foreach ($assignments as $assignment) {
                 $from = $assignment->getFrom();
                 $to = trim($assignment->getTo()->getBody());
-                // Dot Notation
-                $payload[] = ['key' => $to, 'value' => $from($data)];
+                if (is_callable($from)) {
+                    $payload[] = ['key' => $to, 'value' => $from($data)];
+                }
             }
         }
         // Update data into target $instance
