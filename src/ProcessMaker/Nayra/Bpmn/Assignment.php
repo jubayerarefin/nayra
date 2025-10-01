@@ -15,7 +15,7 @@ class Assignment implements AssignmentInterface
     /**
      * Get the 'from' formal expression.
      *
-     * @return FormalExpressionInterface
+     * @return FormalExpressionInterface|callable
      */
     public function getFrom()
     {
@@ -25,7 +25,7 @@ class Assignment implements AssignmentInterface
     /**
      * Get the 'to' formal expression.
      *
-     * @return FormalExpressionInterface
+     * @return FormalExpressionInterface|callable
      */
     public function getTo()
     {
