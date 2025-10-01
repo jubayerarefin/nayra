@@ -94,6 +94,14 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
         return $this;
     }
 
+    /**
+     * Evaluate the message payload
+     *
+     * @param ThrowEventInterface $throwEvent
+     * @param TokenInterface $token
+     * @param ExecutionInstanceInterface $targetInstance
+     * @return void
+     */
     private function evaluateMessagePayload(ThrowEventInterface $throwEvent, TokenInterface $token, ExecutionInstanceInterface $targetInstance)
     {
         // Initialize message payload
@@ -107,35 +115,63 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
             $data = $sourceDataStore->getData();
             $source = $association->getSource();
             $target = $association->getTarget();
-            $transformation = $association->getTransformation();
 
             // Add reference to source
             $hasSource = $source && $source->getName();
             $hasTarget = $target && $target->getName();
             $data['sourceRef'] = $hasSource ? $sourceDataStore->getDotData($source->getName()) : null;
 
-            // Apply transformation if exists
-            if ($hasTarget && $transformation && is_callable($transformation)) {
-                $value = $transformation($data);
-                $payload[] = ['key' => $target->getName(), 'value' => $value];
-            } elseif ($hasTarget && $hasSource) {
-                $payload[] = ['key' => $target->getName(), 'value' => $data['sourceRef']];
-            }
+            // Apply transformation
+            $this->applyTransformation($association, $data, $payload, $hasTarget, $hasSource);
 
             // Evaluate assignments
-            $assignments = $association->getAssignments();
-            foreach ($assignments as $assignment) {
-                $from = $assignment->getFrom();
-                $to = trim($assignment->getTo()->getBody());
-                if (is_callable($from)) {
-                    $payload[] = ['key' => $to, 'value' => $from($data)];
-                }
-            }
+            $this->evaluateAssignments($association, $data, $payload);
         }
         // Update data into target $instance
         $dataStore = $targetInstance->getDataStore();
         foreach ($payload as $load) {
             $dataStore->setDotData($load['key'], $load['value']);
+        }
+    }
+
+    /**
+     * Apply transformation to the data and add to payload
+     *
+     * @param mixed $association
+     * @param array $data
+     * @param array &$payload
+     * @param bool $hasTarget
+     * @param bool $hasSource
+     */
+    private function applyTransformation($association, array $data, array &$payload, bool $hasTarget, bool $hasSource)
+    {
+        $transformation = $association->getTransformation();
+        $target = $association->getTarget();
+
+        if ($hasTarget && $transformation && is_callable($transformation)) {
+            $value = $transformation($data);
+            $payload[] = ['key' => $target->getName(), 'value' => $value];
+        } elseif ($hasTarget && $hasSource) {
+            $payload[] = ['key' => $target->getName(), 'value' => $data['sourceRef']];
+        }
+    }
+
+    /**
+     * Evaluate assignments and add to payload
+     *
+     * @param mixed $association
+     * @param array $data
+     * @param array &$payload
+     */
+    private function evaluateAssignments($association, array $data, array &$payload)
+    {
+        $assignments = $association->getAssignments();
+        foreach ($assignments as $assignment) {
+            $from = $assignment->getFrom();
+            $to = trim($assignment->getTo()?->getBody());
+            if (is_callable($from)) {
+                $payload[] = ['key' => $to, 'value' => $from($data)];
+            }
         }
     }
 
