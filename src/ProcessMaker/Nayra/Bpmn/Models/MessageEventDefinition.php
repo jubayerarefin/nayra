@@ -169,7 +169,7 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
         foreach ($assignments as $assignment) {
             $from = $assignment->getFrom();
             $to = trim($assignment->getTo()?->getBody());
-            if (is_callable($from)) {
+            if (is_callable($from) && !empty($to)) {
                 $payload[] = ['key' => $to, 'value' => $from($data)];
             }
         }
