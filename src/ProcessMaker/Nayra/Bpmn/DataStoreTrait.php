@@ -102,6 +102,36 @@ trait DataStoreTrait
     }
 
     /**
+     * Get data using dot notation.
+     *
+     * @param string $path Dot notation path (e.g., 'user.profile.name')
+     * @param mixed $default Default value if path doesn't exist
+     *
+     * @return mixed
+     */
+    public function getDotData($path, $default = null)
+    {
+        $keys = explode('.', $path);
+        $current = $this->data;
+        
+        // Navigate through the path
+        foreach ($keys as $key) {
+            // Handle numeric keys for arrays
+            if (is_numeric($key)) {
+                $key = (int) $key;
+            }
+            
+            if (!isset($current[$key])) {
+                return $default;
+            }
+            
+            $current = $current[$key];
+        }
+        
+        return $current;
+    }
+
+    /**
      * Set data using dot notation.
      *
      * @param string $path Dot notation path (e.g., 'user.profile.name')
