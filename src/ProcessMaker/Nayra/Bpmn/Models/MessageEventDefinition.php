@@ -107,8 +107,8 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
         // Initialize message payload
         $payload = [];
         $associations = $throwEvent->getDataInputAssociations();
-        // Get data from source token instance
-        $sourceDataStore = $token->getInstance()->getDataStore();
+        // Get data from source token instance or empty one if not found
+        $sourceDataStore = $token->getInstance()?->getDataStore() ?? new DataStore();
 
         // Associate data inputs to message payload
         foreach ($associations as $association) {
