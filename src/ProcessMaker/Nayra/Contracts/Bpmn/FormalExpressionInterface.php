@@ -39,4 +39,13 @@ interface FormalExpressionInterface extends EntityInterface
      * @param string $body
      */
     public function setBody($body);
+
+    /**
+     * Invoke the format expression.
+     *
+     * @param mixed $data
+     *
+     * @return string
+     */
+    public function __invoke($data);
 }
