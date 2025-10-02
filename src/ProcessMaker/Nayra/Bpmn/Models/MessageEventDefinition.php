@@ -110,22 +110,22 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
      */
     private function executeMessageMapping(ThrowEventInterface $throwEvent, CatchEventInterface $catchEvent, ExecutionInstanceInterface $instance, TokenInterface $token): void
     {
-        $sourceMaps   = $throwEvent->getDataInputAssociations();
-        $targetMaps   = $catchEvent->getDataOutputAssociations();
-        $instanceStore = $instance->getDataStore();
+        $sourceMaps = $throwEvent->getDataInputAssociations();
+        $targetMaps = $catchEvent->getDataOutputAssociations();
+        $targetStore = $instance->getDataStore();
 
         // Source of data is the token's instance store if present; otherwise a fresh store.
         $sourceStore = $token->getInstance()?->getDataStore() ?? new DataStore();
 
         // If target mappings exist we stage into a buffer; otherwise write straight to the instance store.
-        $bufferStore = !count($targetMaps) ? $instanceStore : new DataStore();
+        $bufferStore = !count($targetMaps) ? $targetStore : new DataStore();
 
         // 1) Source mappings: source → buffer/instance
         $this->evaluateMessagePayload($sourceMaps, $sourceStore, $bufferStore);
 
         // 2) Optional target mappings: buffer → instance
         if (count($targetMaps)) {
-            $this->evaluateMessagePayload($targetMaps, $bufferStore, $instanceStore);
+            $this->evaluateMessagePayload($targetMaps, $bufferStore, $targetStore);
         }
     }
 
