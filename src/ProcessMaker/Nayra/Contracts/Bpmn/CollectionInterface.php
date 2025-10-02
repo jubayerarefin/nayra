@@ -3,11 +3,12 @@
 namespace ProcessMaker\Nayra\Contracts\Bpmn;
 
 use SeekableIterator;
+use Countable;
 
 /**
  * CollectionInterface
  */
-interface CollectionInterface extends SeekableIterator
+interface CollectionInterface extends SeekableIterator, Countable
 {
     /**
      * Count the elements of the collection.

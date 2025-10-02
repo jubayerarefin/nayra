@@ -113,21 +113,21 @@ trait DataStoreTrait
     {
         $keys = explode('.', $path);
         $current = $this->data;
-        
+
         // Navigate through the path
         foreach ($keys as $key) {
             // Handle numeric keys for arrays
             if (is_numeric($key)) {
                 $key = (int) $key;
             }
-            
+
             if (!isset($current[$key])) {
                 return $default;
             }
-            
+
             $current = $current[$key];
         }
-        
+
         return $current;
     }
 
@@ -142,31 +142,34 @@ trait DataStoreTrait
     public function setDotData($path, $value)
     {
         $keys = explode('.', $path);
+        $firstKey = $keys[0];
         $current = &$this->data;
-        
+
         // Navigate to the parent of the target key
         for ($i = 0; $i < count($keys) - 1; $i++) {
             $key = $keys[$i];
-            
+
             // Handle numeric keys for arrays
             if (is_numeric($key)) {
                 $key = (int) $key;
             }
-            
+
             if (!isset($current[$key]) || !is_array($current[$key])) {
                 $current[$key] = [];
             }
             $current = &$current[$key];
         }
-        
+
         // Set the final value
         $finalKey = $keys[count($keys) - 1];
         if (is_numeric($finalKey)) {
             $finalKey = (int) $finalKey;
         }
-        
+
         $current[$finalKey] = $value;
-        
+        // Keep compatibility with putData method (required by PM Core)
+        $this->putData($firstKey, $this->data[$firstKey]);
+
         return $this;
     }
 }
