@@ -48,16 +48,6 @@ trait CatchEventTrait
         return $this->getProperty(CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION);
     }
 
-    public function getDataOutput()
-    {
-        return $this->getProperty(CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT);
-    }
-
-    public function getDataOutputSet()
-    {
-        return $this->getProperty(CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_SET);
-    }
-
     /**
      * Register catch events.
      *
