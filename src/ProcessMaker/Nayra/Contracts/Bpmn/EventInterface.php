@@ -10,6 +10,9 @@ use ProcessMaker\Nayra\Contracts\Bpmn\FlowNodeInterface;
 interface EventInterface extends FlowNodeInterface
 {
     const BPMN_PROPERTY_EVENT_DEFINITIONS = 'eventDefinitions';
+    const BPMN_PROPERTY_DATA_INPUT = 'dataInput';
+    const BPMN_PROPERTY_DATA_INPUT_SET = 'inputSet';
+    const BPMN_PROPERTY_DATA_INPUT_ASSOCIATION = 'dataInputAssociation';
 
     const TYPE_START = 'START';
 

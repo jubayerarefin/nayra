@@ -1,0 +1,23 @@
+[
+    {
+        "comment": "Message event sent multiple data inputs to parent",
+        "startEvent": "StartEvent",
+        "data": {
+        },
+        "result": [
+            "Task_B",
+            "Task_D",
+            "Task_E",
+            "Task_F"
+        ],
+        "output": {
+            "email": "admin@example.com",
+            "login": "ADMIN",
+            "fullName": "admin user",
+            "status": {
+                "name": "COMPLETED",
+                "description": "The task has been completed"
+            }
+        }
+    }
+]

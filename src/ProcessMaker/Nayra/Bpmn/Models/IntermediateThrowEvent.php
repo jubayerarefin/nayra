@@ -14,16 +14,6 @@ class IntermediateThrowEvent implements IntermediateThrowEventInterface
     use IntermediateThrowEventTrait;
 
     /**
-     * @var \ProcessMaker\Nayra\Contracts\Bpmn\DataInputAssociationInterface[]
-     */
-    private $dataInputAssociations;
-
-    /**
-     * @var \ProcessMaker\Nayra\Contracts\Bpmn\DataInputInterface[]
-     */
-    private $dataInputs;
-
-    /**
      * @var \ProcessMaker\Nayra\Contracts\Bpmn\InputSetInterface
      */
     private $inputSet;
@@ -38,8 +28,8 @@ class IntermediateThrowEvent implements IntermediateThrowEventInterface
      */
     protected function initIntermediateThrowEvent()
     {
-        $this->dataInputAssociations = new Collection;
-        $this->dataInputs = new Collection;
+        $this->properties[static::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION] = new Collection;
+        $this->properties[static::BPMN_PROPERTY_DATA_INPUT] = new Collection;
         $this->setProperty(static::BPMN_PROPERTY_EVENT_DEFINITIONS, new Collection);
     }
 
@@ -60,7 +50,7 @@ class IntermediateThrowEvent implements IntermediateThrowEventInterface
      */
     public function getDataInputAssociations()
     {
-        return $this->dataInputAssociations;
+        return $this->getProperty(static::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION);
     }
 
     /**
@@ -70,7 +60,7 @@ class IntermediateThrowEvent implements IntermediateThrowEventInterface
      */
     public function getDataInputs()
     {
-        return $this->dataInputs;
+        return $this->getProperty(static::BPMN_PROPERTY_DATA_INPUT);
     }
 
     /**

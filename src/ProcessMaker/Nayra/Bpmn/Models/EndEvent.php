@@ -2,6 +2,7 @@
 
 namespace ProcessMaker\Nayra\Bpmn\Models;
 
+use ProcessMaker\Nayra\Bpmn\Collection;
 use ProcessMaker\Nayra\Bpmn\EndEventTrait;
 use ProcessMaker\Nayra\Contracts\Bpmn\EndEventInterface;
 use ProcessMaker\Nayra\Model\DataInputAssociationInterface;
@@ -19,11 +20,17 @@ class EndEvent implements EndEventInterface
 {
     use EndEventTrait;
 
-    private $dataInputs;
-
-    private $dataInputAssociations;
-
     private $inputSet;
+
+    /**
+     * Initialize intermediate throw event.
+     */
+    protected function initEndEvent()
+    {
+        $this->properties[static::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION] = new Collection();
+        $this->properties[static::BPMN_PROPERTY_DATA_INPUT] = new Collection;
+        $this->setProperty(static::BPMN_PROPERTY_EVENT_DEFINITIONS, new Collection);
+    }
 
     /**
      * Array map of custom event classes for the bpmn element.
@@ -52,7 +59,7 @@ class EndEvent implements EndEventInterface
      */
     public function getDataInputs()
     {
-        return $this->dataInputs;
+        return $this->getProperty(static::BPMN_PROPERTY_DATA_INPUT);
     }
 
     /**
@@ -62,7 +69,7 @@ class EndEvent implements EndEventInterface
      */
     public function getDataInputAssociations()
     {
-        return $this->getDataInputAssociations();
+        return $this->getProperty(static::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION);
     }
 
     /**

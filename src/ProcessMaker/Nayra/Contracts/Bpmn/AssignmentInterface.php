@@ -7,6 +7,9 @@ namespace ProcessMaker\Nayra\Contracts\Bpmn;
  */
 interface AssignmentInterface extends EntityInterface
 {
+    const BPMN_PROPERTY_FROM = 'from';
+    const BPMN_PROPERTY_TO = 'to';
+
     /**
      * @return FormalExpressionInterface
      */
