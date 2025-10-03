@@ -44,9 +44,11 @@ class BpmnElement extends DOMElement implements BpmnElementInterface
             return null;
         }
         list($classInterface, $mapProperties) = $map[$this->namespaceURI][$this->localName];
-        if ($classInterface === BpmnDocument::IS_REFERENCE) {
-            $bpmnElement = $this->ownerDocument->getElementInstanceById($this->nodeValue);
-            $this->bpmn = $bpmnElement;
+        if ($classInterface === BpmnDocument::IS_REFERENCE || $classInterface === BpmnDocument::IS_REFERENCE_OPTIONAL) {
+            $bpmnElement = $this->ownerDocument->getElementInstanceById(
+                $this->nodeValue,
+                $classInterface === BpmnDocument::IS_REFERENCE_OPTIONAL
+            );
         } elseif ($classInterface === BpmnDocument::TEXT_PROPERTY) {
             $bpmnElement = $this->nodeValue;
             $owner->setProperty($this->nodeName, $this->nodeValue);
