@@ -712,7 +712,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                 ? $element->getBpmnElementInstance()
                 : null
             );
-        if ($this->bpmnElements[$id] === null && $element === null) {
+        if ($this->bpmnElements[$id] === null && empty($element)) {
             throw new ElementNotFoundException($id);
         }
 
