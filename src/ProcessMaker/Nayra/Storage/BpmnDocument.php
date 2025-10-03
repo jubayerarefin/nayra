@@ -14,6 +14,7 @@ use ProcessMaker\Nayra\Contracts\Bpmn\CollaborationInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\ConditionalEventDefinitionInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataInputAssociationInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataInputInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\DataOutputAssociationInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataOutputInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataStoreInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\EndEventInterface;
@@ -54,6 +55,7 @@ use ProcessMaker\Nayra\Contracts\Bpmn\SignalInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\StandardLoopCharacteristicsInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\StartEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TerminateEventDefinitionInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\ThrowEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TimerEventDefinitionInterface;
 use ProcessMaker\Nayra\Contracts\Engine\EngineInterface;
 use ProcessMaker\Nayra\Contracts\RepositoryInterface;
@@ -119,6 +121,9 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     FlowNodeInterface::BPMN_PROPERTY_INCOMING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_INCOMING]],
                     FlowNodeInterface::BPMN_PROPERTY_OUTGOING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_OUTGOING]],
                     EndEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS => ['n', EventDefinitionInterface::class],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT]],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_SET => ['1', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_SET]],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION]],
                 ],
             ],
             'task' => [
@@ -378,7 +383,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION]],
                 ],
             ],
-            'dataInputAssociation' => [
+            ThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION => [
                 DataInputAssociationInterface::class,
                 [
                     DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF]],
@@ -412,6 +417,15 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                 FormalExpressionInterface::class,
                 [
                     FormalExpressionInterface::BPMN_PROPERTY_BODY => ['1', self::DOM_ELEMENT_BODY],
+                ],
+            ],
+            CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION => [
+                DataOutputAssociationInterface::class,
+                [
+                    DataOutputAssociationInterface::BPMN_PROPERTY_TARGET_REF => ['1', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_TARGET_REF]],
+                    DataOutputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => ['1', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_SOURCES_REF]],
+                    DataOutputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT => ['n', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT]],
+                    DataOutputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => ['1', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION]],
                 ],
             ],
             'signalEventDefinition' => [
@@ -455,6 +469,9 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     BoundaryEventInterface::BPMN_PROPERTY_ATTACHED_TO => ['1', [self::BPMN_MODEL, BoundaryEventInterface::BPMN_PROPERTY_ATTACHED_TO_REF]],
                     CatchEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS => ['n', EventDefinitionInterface::class],
                     FlowNodeInterface::BPMN_PROPERTY_OUTGOING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_OUTGOING]],
+                    CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT => ['n', [self::BPMN_MODEL, CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT]],
+                    CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_SET => ['1', [self::BPMN_MODEL, CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_SET]],
+                    CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION => ['n', [self::BPMN_MODEL, CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION]],
                 ],
             ],
             'multiInstanceLoopCharacteristics' => [
@@ -695,7 +712,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                 ? $element->getBpmnElementInstance()
                 : null
             );
-        if ($this->bpmnElements[$id] === null) {
+        if ($this->bpmnElements[$id] === null && empty($element)) {
             throw new ElementNotFoundException($id);
         }
 

@@ -3,6 +3,9 @@
 namespace ProcessMaker\Nayra\Bpmn\Models;
 
 use ProcessMaker\Nayra\Bpmn\EventDefinitionTrait;
+use ProcessMaker\Nayra\Contracts\Bpmn\CatchEventInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\CollectionInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\DataStoreInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\EventDefinitionInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\FlowNodeInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\MessageEventDefinitionInterface;
@@ -90,47 +93,78 @@ class MessageEventDefinition implements MessageEventDefinitionInterface
     public function execute(EventDefinitionInterface $event, FlowNodeInterface $target, ExecutionInstanceInterface $instance = null, TokenInterface $token = null)
     {
         $throwEvent = $token->getOwnerElement();
-        $this->evaluateMessagePayload($throwEvent, $token, $instance);
+        $this->executeMessageMapping($throwEvent, $target, $instance, $token);
         return $this;
+    }
+
+    /**
+     * Map a message payload from a ThrowEvent through an optional CatchEvent mapping
+     * into the instance data store.
+     *
+     * @param ThrowEventInterface $throwEvent
+     * @param CatchEventInterface $catchEvent
+     * @param ExecutionInstanceInterface $instance
+     * @param TokenInterface $token
+     *
+     * @return void
+     */
+    private function executeMessageMapping(ThrowEventInterface $throwEvent, CatchEventInterface $catchEvent, ExecutionInstanceInterface $instance, TokenInterface $token): void
+    {
+        $sourceMaps = $throwEvent->getDataInputAssociations();
+        $targetMaps = $catchEvent->getDataOutputAssociations();
+        $targetStore = $instance->getDataStore();
+
+        // Source of data is the token's instance store if present; otherwise a fresh store.
+        $sourceStore = $token->getInstance()?->getDataStore() ?? new DataStore();
+
+        // If target mappings exist we stage into a buffer; otherwise write straight to the instance store.
+        $bufferStore = !count($targetMaps) ? $targetStore : new DataStore();
+
+        // 1) Source mappings: source → buffer/instance
+        $this->evaluateMessagePayload($sourceMaps, $sourceStore, $bufferStore);
+
+        // 2) Optional target mappings: buffer → instance
+        if (count($targetMaps)) {
+            $this->evaluateMessagePayload($targetMaps, $bufferStore, $targetStore);
+        }
     }
 
     /**
      * Evaluate the message payload
      *
-     * @param ThrowEventInterface $throwEvent
-     * @param TokenInterface $token
-     * @param ExecutionInstanceInterface $targetInstance
+     * @param CollectionInterface $associations
+     * @param DataStoreInterface $sourceStore
+     * @param DataStoreInterface $targetStore
+     *
      * @return void
      */
-    private function evaluateMessagePayload(ThrowEventInterface $throwEvent, TokenInterface $token, ExecutionInstanceInterface $targetInstance)
+    private function evaluateMessagePayload(CollectionInterface $associations, DataStoreInterface $sourceStore, DataStoreInterface $targetStore): void
     {
-        // Initialize message payload
-        $payload = [];
-        $associations = $throwEvent->getDataInputAssociations();
-        // Get data from source token instance or empty one if not found
-        $sourceDataStore = $token->getInstance()?->getDataStore() ?? new DataStore();
+        $assignments = [];
 
-        // Associate data inputs to message payload
         foreach ($associations as $association) {
-            $data = $sourceDataStore->getData();
             $source = $association->getSource();
             $target = $association->getTarget();
 
-            // Add reference to source
             $hasSource = $source && $source->getName();
             $hasTarget = $target && $target->getName();
-            $data['sourceRef'] = $hasSource ? $sourceDataStore->getDotData($source->getName()) : null;
 
-            // Apply transformation
-            $this->applyTransformation($association, $data, $payload, $hasTarget, $hasSource);
+            // Base data always starts from full source store
+            $data = $sourceStore->getData();
 
-            // Evaluate assignments
-            $this->evaluateAssignments($association, $data, $payload);
+            // Optionally add a direct reference to the source value
+            if ($hasSource) {
+                $data['sourceRef'] = $sourceStore->getDotData($source->getName());
+            }
+
+            // Transformation and assignments build up the assignments list
+            $this->applyTransformation($association, $data, $assignments, $hasTarget, $hasSource);
+            $this->evaluateAssignments($association, $data, $assignments);
         }
-        // Update data into target $instance
-        $dataStore = $targetInstance->getDataStore();
-        foreach ($payload as $load) {
-            $dataStore->setDotData($load['key'], $load['value']);
+
+        // Flush all assignments into target store
+        foreach ($assignments as $assignment) {
+            $targetStore->setDotData($assignment['key'], $assignment['value']);
         }
     }
 

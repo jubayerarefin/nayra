@@ -16,6 +16,12 @@ interface CatchEventInterface extends EventInterface
 
     const EVENT_CATCH_TOKEN_ARRIVES = 'CatchEventTokenArrives';
 
+    const BPMN_PROPERTY_DATA_OUTPUT = 'dataOutput';
+
+    const BPMN_PROPERTY_DATA_OUTPUT_SET = 'outputSet';
+
+    const BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION = 'dataOutputAssociation';
+
     /**
      * Get EventDefinitions that are triggers expected for a catch Event.
      *
@@ -57,4 +63,11 @@ interface CatchEventInterface extends EventInterface
      * @return StateInterface
      */
     public function getActiveState();
+
+    /**
+     * Get the data output associations.
+     *
+     * @return DataOutputAssociationInterface[]
+     */
+    public function getDataOutputAssociations();
 }

@@ -5,6 +5,7 @@ namespace ProcessMaker\Nayra;
 use InvalidArgumentException;
 use ProcessMaker\Nayra\Bpmn\Assignment;
 use ProcessMaker\Nayra\Bpmn\DataInputAssociation;
+use ProcessMaker\Nayra\Bpmn\DataOutputAssociation;
 use ProcessMaker\Nayra\Bpmn\Lane;
 use ProcessMaker\Nayra\Bpmn\LaneSet;
 use ProcessMaker\Nayra\Bpmn\Models\Activity;
@@ -492,5 +493,10 @@ trait RepositoryTrait
     public function createAssignment()
     {
         return new Assignment();
+    }
+
+    public function createDataOutputAssociation()
+    {
+        return new DataOutputAssociation();
     }
 }
