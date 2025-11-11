@@ -392,8 +392,8 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION]],
                 ],
             ],
-            DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => [self::IS_REFERENCE, []],
-            DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => [self::IS_REFERENCE, []],
+            DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => [self::IS_REFERENCE_OPTIONAL, []],
+            DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => [self::IS_REFERENCE_OPTIONAL, []],
             DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => [
                 FormalExpressionInterface::class,
                 [
@@ -545,6 +545,8 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
     const SKIP_ELEMENT = null;
 
     const IS_REFERENCE = 'isReference';
+
+    const IS_REFERENCE_OPTIONAL = 'isReferenceOptional';
 
     const TEXT_PROPERTY = 'textProperty';
 
@@ -703,7 +705,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
      *
      * @return \ProcessMaker\Nayra\Contracts\Bpmn\EntityInterface
      */
-    public function getElementInstanceById($id)
+    public function getElementInstanceById($id, ?bool $isOptional = false)
     {
         $this->bpmnElements[$id] = isset($this->bpmnElements[$id])
             ? $this->bpmnElements[$id]
@@ -712,7 +714,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                 ? $element->getBpmnElementInstance()
                 : null
             );
-        if ($this->bpmnElements[$id] === null && empty($element)) {
+        if ($this->bpmnElements[$id] === null && empty($element) && !$isOptional) {
             throw new ElementNotFoundException($id);
         }
 
