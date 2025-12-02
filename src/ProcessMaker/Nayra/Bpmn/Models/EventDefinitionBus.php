@@ -52,6 +52,10 @@ class EventDefinitionBus implements EventDefinitionBusInterface
                 if (!$match) {
                     return;
                 }
+                $targetCatch = $sourceEventDefinition->getProperty('target_catch_event_id');
+                if ($targetCatch && $catchEvent->getId() !== $targetCatch) {
+                    return;
+                }
                 if ($catchEvent instanceof StartEventInterface && $sourceEventDefinition->getDoNotTriggerStartEvents()) {
                     return;
                 }
@@ -60,6 +64,10 @@ class EventDefinitionBus implements EventDefinitionBusInterface
                 } else {
                     $instances = $this->getInstancesFor($catchEvent);
                     foreach ($instances as $instance) {
+                        $targetInstance = $sourceEventDefinition->getProperty('target_instance_id');
+                        if ($targetInstance && $instance->getKey() !== $targetInstance) {
+                            continue;
+                        }
                         $callable($eventDefinition, $instance, $token);
                     }
                 }
