@@ -6,12 +6,15 @@ use DOMDocument;
 use DOMElement;
 use DOMXPath;
 use ProcessMaker\Nayra\Contracts\Bpmn\ActivityInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\AssignmentInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\BoundaryEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\CallActivityInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\CatchEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\CollaborationInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\ConditionalEventDefinitionInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\DataInputAssociationInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataInputInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\DataOutputAssociationInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataOutputInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\DataStoreInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\EndEventInterface;
@@ -52,6 +55,7 @@ use ProcessMaker\Nayra\Contracts\Bpmn\SignalInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\StandardLoopCharacteristicsInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\StartEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TerminateEventDefinitionInterface;
+use ProcessMaker\Nayra\Contracts\Bpmn\ThrowEventInterface;
 use ProcessMaker\Nayra\Contracts\Bpmn\TimerEventDefinitionInterface;
 use ProcessMaker\Nayra\Contracts\Engine\EngineInterface;
 use ProcessMaker\Nayra\Contracts\RepositoryInterface;
@@ -117,6 +121,9 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     FlowNodeInterface::BPMN_PROPERTY_INCOMING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_INCOMING]],
                     FlowNodeInterface::BPMN_PROPERTY_OUTGOING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_OUTGOING]],
                     EndEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS => ['n', EventDefinitionInterface::class],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT]],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_SET => ['1', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_SET]],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION]],
                 ],
             ],
             'task' => [
@@ -371,6 +378,54 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     FlowNodeInterface::BPMN_PROPERTY_INCOMING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_INCOMING]],
                     FlowNodeInterface::BPMN_PROPERTY_OUTGOING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_OUTGOING]],
                     IntermediateThrowEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS => ['n', EventDefinitionInterface::class],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT]],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_SET => ['1', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_SET]],
+                    IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION => ['n', [self::BPMN_MODEL, IntermediateThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION]],
+                ],
+            ],
+            ThrowEventInterface::BPMN_PROPERTY_DATA_INPUT_ASSOCIATION => [
+                DataInputAssociationInterface::class,
+                [
+                    DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF]],
+                    DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF]],
+                    DataInputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT => ['n', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT]],
+                    DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => ['1', [self::BPMN_MODEL, DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION]],
+                ],
+            ],
+            DataInputAssociationInterface::BPMN_PROPERTY_TARGET_REF => [self::IS_REFERENCE_OPTIONAL, []],
+            DataInputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => [self::IS_REFERENCE_OPTIONAL, []],
+            DataInputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => [
+                FormalExpressionInterface::class,
+                [
+                    FormalExpressionInterface::BPMN_PROPERTY_BODY => ['1', self::DOM_ELEMENT_BODY],
+                ],
+            ],
+            DataInputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT => [
+                AssignmentInterface::class,
+                [
+                    AssignmentInterface::BPMN_PROPERTY_FROM => ['1', [self::BPMN_MODEL, AssignmentInterface::BPMN_PROPERTY_FROM]],
+                    AssignmentInterface::BPMN_PROPERTY_TO => ['1', [self::BPMN_MODEL, AssignmentInterface::BPMN_PROPERTY_TO]],
+                ],
+            ],
+            AssignmentInterface::BPMN_PROPERTY_FROM => [
+                FormalExpressionInterface::class,
+                [
+                    FormalExpressionInterface::BPMN_PROPERTY_BODY => ['1', self::DOM_ELEMENT_BODY],
+                ],
+            ],
+            AssignmentInterface::BPMN_PROPERTY_TO => [
+                FormalExpressionInterface::class,
+                [
+                    FormalExpressionInterface::BPMN_PROPERTY_BODY => ['1', self::DOM_ELEMENT_BODY],
+                ],
+            ],
+            CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION => [
+                DataOutputAssociationInterface::class,
+                [
+                    DataOutputAssociationInterface::BPMN_PROPERTY_TARGET_REF => ['1', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_TARGET_REF]],
+                    DataOutputAssociationInterface::BPMN_PROPERTY_SOURCES_REF => ['1', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_SOURCES_REF]],
+                    DataOutputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT => ['n', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_ASSIGNMENT]],
+                    DataOutputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION => ['1', [self::BPMN_MODEL, DataOutputAssociationInterface::BPMN_PROPERTY_TRANSFORMATION]],
                 ],
             ],
             'signalEventDefinition' => [
@@ -414,6 +469,9 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                     BoundaryEventInterface::BPMN_PROPERTY_ATTACHED_TO => ['1', [self::BPMN_MODEL, BoundaryEventInterface::BPMN_PROPERTY_ATTACHED_TO_REF]],
                     CatchEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS => ['n', EventDefinitionInterface::class],
                     FlowNodeInterface::BPMN_PROPERTY_OUTGOING => ['n', [self::BPMN_MODEL, FlowNodeInterface::BPMN_PROPERTY_OUTGOING]],
+                    CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT => ['n', [self::BPMN_MODEL, CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT]],
+                    CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_SET => ['1', [self::BPMN_MODEL, CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_SET]],
+                    CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION => ['n', [self::BPMN_MODEL, CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION]],
                 ],
             ],
             'multiInstanceLoopCharacteristics' => [
@@ -487,6 +545,8 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
     const SKIP_ELEMENT = null;
 
     const IS_REFERENCE = 'isReference';
+
+    const IS_REFERENCE_OPTIONAL = 'isReferenceOptional';
 
     const TEXT_PROPERTY = 'textProperty';
 
@@ -645,7 +705,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
      *
      * @return \ProcessMaker\Nayra\Contracts\Bpmn\EntityInterface
      */
-    public function getElementInstanceById($id)
+    public function getElementInstanceById($id, ?bool $isOptional = false)
     {
         $this->bpmnElements[$id] = isset($this->bpmnElements[$id])
             ? $this->bpmnElements[$id]
@@ -654,7 +714,7 @@ class BpmnDocument extends DOMDocument implements BpmnDocumentInterface
                 ? $element->getBpmnElementInstance()
                 : null
             );
-        if ($this->bpmnElements[$id] === null) {
+        if ($this->bpmnElements[$id] === null && empty($element) && !$isOptional) {
             throw new ElementNotFoundException($id);
         }
 

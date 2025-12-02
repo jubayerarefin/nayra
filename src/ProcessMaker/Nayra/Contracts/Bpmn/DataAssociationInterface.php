@@ -7,12 +7,17 @@ namespace ProcessMaker\Nayra\Contracts\Bpmn;
  */
 interface DataAssociationInterface extends EntityInterface
 {
+    const BPMN_PROPERTY_ASSIGNMENT = 'assignment';
+    const BPMN_PROPERTY_SOURCES_REF = 'sourceRef';
+    const BPMN_PROPERTY_TARGET_REF = 'targetRef';
+    const BPMN_PROPERTY_TRANSFORMATION = 'transformation';
+
     /**
      * Get the source of the data association.
      *
-     * @return ItemAwareElementInterface[]
+     * @return ItemAwareElementInterface
      */
-    public function getSources();
+    public function getSource();
 
     /**
      * Get the target of the data association.
@@ -31,5 +36,5 @@ interface DataAssociationInterface extends EntityInterface
     /**
      * @return AssignmentInterface[]
      */
-    public function getAssignmentInterfaces();
+    public function getAssignments();
 }

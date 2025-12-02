@@ -7,4 +7,5 @@ namespace ProcessMaker\Nayra\Contracts\Bpmn;
  */
 interface DataOutputAssociationInterface extends DataAssociationInterface
 {
+    
 }

@@ -30,6 +30,7 @@ trait CatchEventTrait
     {
         $this->setProperty(CatchEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS, new Collection);
         $this->setProperty(CatchEventInterface::BPMN_PROPERTY_PARALLEL_MULTIPLE, false);
+        $this->setProperty(CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION, new Collection);
     }
 
     /**
@@ -40,6 +41,11 @@ trait CatchEventTrait
     public function getEventDefinitions()
     {
         return $this->getProperty(CatchEventInterface::BPMN_PROPERTY_EVENT_DEFINITIONS);
+    }
+
+    public function getDataOutputAssociations()
+    {
+        return $this->getProperty(CatchEventInterface::BPMN_PROPERTY_DATA_OUTPUT_ASSOCIATION);
     }
 
     /**

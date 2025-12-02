@@ -18,6 +18,12 @@ interface ThrowEventInterface extends EventInterface
 
     const EVENT_THROW_TOKEN_CONSUMED = 'ThrowEventTokenConsumed';
 
+    const BPMN_PROPERTY_DATA_INPUT = 'dataInput';
+
+    const BPMN_PROPERTY_DATA_INPUT_SET = 'inputSet';
+
+    const BPMN_PROPERTY_DATA_INPUT_ASSOCIATION = 'dataInputAssociation';
+
     /**
      * Get Data Inputs for the throw Event.
      *

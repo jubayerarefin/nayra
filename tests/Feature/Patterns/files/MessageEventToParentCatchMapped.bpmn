@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    id="sid-38422fae-e03e-43a3-bef4-bd33b32041b2" targetNamespace="http://bpmn.io/bpmn"
+    >
+    <collaboration id="Collaboration_0utf0sd">
+        <participant id="Participant_1f4jbtu" name="main" processRef="Process_1" />
+        <participant id="Participant_0qod0gz" name="sub-process" processRef="Process_1gn8a5z" />
+    </collaboration>
+    <dataStore id="ds_email" name="user.email"/>
+    <message id="Message_0z3vg33" name="Message_0z3vg33" />
+    <process id="Process_1" isExecutable="false">
+        <startEvent id="StartEvent">
+            <outgoing>SequenceFlow_0h21x7r</outgoing>
+        </startEvent>
+        <endEvent id="Event_0tpzg6j">
+            <incoming>Flow_148wtcr</incoming>
+        </endEvent>
+        <callActivity id="Task_A" name="A" calledElement="Process_1gn8a5z">
+            <incoming>SequenceFlow_0h21x7r</incoming>
+            <outgoing>Flow_1r89qx6</outgoing>
+        </callActivity>
+        <scriptTask id="Task_F" name="F">
+            <incoming>Flow_1r89qx6</incoming>
+            <outgoing>Flow_148wtcr</outgoing>
+        </scriptTask>
+        <scriptTask id="Task_D" name="D">
+            <incoming>Flow_0azzp4i</incoming>
+        </scriptTask>
+        <sequenceFlow id="Flow_148wtcr" sourceRef="Task_F" targetRef="Event_0tpzg6j" />
+        <sequenceFlow id="SequenceFlow_0h21x7r" sourceRef="StartEvent" targetRef="Task_A" />
+        <sequenceFlow id="Flow_1r89qx6" sourceRef="Task_A" targetRef="Task_F" />
+        <sequenceFlow id="Flow_0azzp4i" sourceRef="Event_A" targetRef="Task_D" />
+        <boundaryEvent id="Event_A" cancelActivity="false" attachedToRef="Task_A">
+            <outgoing>Flow_0azzp4i</outgoing>
+            <!-- Do extra data mapping-->
+            <dataOutput id="ds_client" name="client"/>
+            <dataOutput id="ds_status" name="status"/>
+            <dataOutputAssociation>
+                <targetRef>ds_status</targetRef>
+                <assignment>
+                    <from>status</from>
+                    <to>status</to>
+                </assignment>
+            </dataOutputAssociation>
+            <dataOutputAssociation>
+                <targetRef>ds_client</targetRef>
+                <assignment>
+                    <from><![CDATA[["email" => $data['email'], "login" => $data['login'], "fullName" => $data['fullName']]]]></from>
+                    <to>client</to>
+                </assignment>
+            </dataOutputAssociation>
+            <outputSet>
+                <dataOutputRefs>ds_client</dataOutputRefs>
+                <dataOutputRefs>ds_status</dataOutputRefs>
+            </outputSet>
+            <messageEventDefinition id="MessageEventDefinition_0z3vg33" messageRef="Message_0z3vg33" />
+        </boundaryEvent>
+    </process>
+    <process id="Process_1gn8a5z">
+        <startEvent id="Event_1jwnr1y">
+            <outgoing>Flow_1a3yzli</outgoing>
+        </startEvent>
+        <endEvent id="Event_19thta4">
+            <incoming>Flow_09pcqxs</incoming>
+        </endEvent>
+        <scriptTask id="Task_B" name="B" scriptFormat="application/x-betsy">
+            <incoming>Flow_1a3yzli</incoming>
+            <outgoing>Flow_0ntd3ys</outgoing>
+            <script><![CDATA[return ['user' => ['firstname' => 'admin', 'lastname' => 'user', 'username' => 'admin', 'email' => 'admin@example.com']];]]></script>
+        </scriptTask>
+        <scriptTask id="Task_E" name="E" scriptFormat="application/x-betsy">
+            <incoming>Flow_1r1agfn</incoming>
+            <outgoing>Flow_09pcqxs</outgoing>
+            <script><![CDATA[
+                // clear sub process data
+                $data = []; return [];
+            ]]></script>
+        </scriptTask>
+        <sequenceFlow id="Flow_1a3yzli" sourceRef="Event_1jwnr1y" targetRef="Task_B" />
+        <sequenceFlow id="Flow_09pcqxs" sourceRef="Task_E" targetRef="Event_19thta4" />
+        <sequenceFlow id="Flow_0ntd3ys" sourceRef="Task_B" targetRef="Event_C" />
+        <sequenceFlow id="Flow_1r1agfn" sourceRef="Event_C" targetRef="Task_E" />
+        <intermediateThrowEvent id="Event_C" name="C">
+            <incoming>Flow_0ntd3ys</incoming>
+            <outgoing>Flow_1r1agfn</outgoing>
+            <!-- Define the input of the message -->
+            <dataInput id="din_login" name="login" /> <!-- N -->
+            <dataInput id="din_status" name="status" /> <!-- N -->
+            <dataInput id="din_email" name="email" /> <!-- N -->
+            <!-- Simple Data association -->
+            <dataInputAssociation> <!-- N -->
+                <targetRef>din_email</targetRef>
+                <sourceRef>ds_email</sourceRef>
+            </dataInputAssociation>
+            <!-- Data association with transformation and assignment -->
+            <dataInputAssociation> <!-- N -->
+                <targetRef>din_login</targetRef>
+                <transformation><![CDATA[ strtoupper("{$data['user']['username']}") ]]></transformation>
+                <assignment> <!-- N -->
+                    <!-- FEEL expression mapping -->
+                    <from><![CDATA[ "{$data['user']['firstname']} {$data['user']['lastname']}" ]]></from>
+                    <to>fullName</to>
+                </assignment>
+            </dataInputAssociation>
+            <!-- Data association with dot notation assignment -->
+            <dataInputAssociation> <!-- N -->
+                <targetRef>din_status</targetRef>
+                <assignment> <!-- N -->
+                    <!-- FEEL expression mapping -->
+                    <from><![CDATA[ "COMPLETED" ]]></from>
+                    <to>status.name</to>
+                </assignment>
+                <assignment> <!-- N -->
+                    <!-- FEEL expression mapping -->
+                    <from><![CDATA[ "The task has been completed" ]]></from>
+                    <to>status.description</to>
+                </assignment>
+            </dataInputAssociation>
+            <!-- InputSet definition -->
+            <inputSet> <!-- N -->
+                <dataInputRefs>din_email</dataInputRefs>
+                <dataInputRefs>din_login</dataInputRefs>
+                <dataInputRefs>din_status</dataInputRefs>
+            </inputSet>
+            <!-- Message Event Definition -->
+            <messageEventDefinition id="MessageEventDefinition_1ihpiso" messageRef="Message_0z3vg33" />
+        </intermediateThrowEvent>
+    </process>
+    <bpmndi:BPMNDiagram id="BpmnDiagram_1">
+        <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="Collaboration_0utf0sd">
+            <bpmndi:BPMNShape id="Participant_1f4jbtu_di" bpmnElement="Participant_1f4jbtu"
+                isHorizontal="true">
+                <omgdc:Bounds x="160" y="60" width="630" height="250" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Event_0tpzg6j_di" bpmnElement="Event_0tpzg6j">
+                <omgdc:Bounds x="722" y="232" width="36" height="36" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="StartEvent_di" bpmnElement="StartEvent">
+                <omgdc:Bounds x="212" y="232" width="36" height="36" />
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds x="124" y="275" width="73" height="14" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_1nv96va_di" bpmnElement="Task_A">
+                <omgdc:Bounds x="338" y="210" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_1jrjxm3_di" bpmnElement="Task_F">
+                <omgdc:Bounds x="533" y="210" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_1bz9cme_di" bpmnElement="Task_D">
+                <omgdc:Bounds x="460" y="90" width="100" height="80" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Event_0mt9bns_di" bpmnElement="Event_A">
+                <omgdc:Bounds x="370" y="192" width="36" height="36" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge id="Flow_148wtcr_di" bpmnElement="Flow_148wtcr">
+                <omgdi:waypoint x="633" y="250" />
+                <omgdi:waypoint x="722" y="250" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="SequenceFlow_0h21x7r_di" bpmnElement="SequenceFlow_0h21x7r">
+                <omgdi:waypoint x="248" y="250" />
+                <omgdi:waypoint x="338" y="250" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_1r89qx6_di" bpmnElement="Flow_1r89qx6">
+                <omgdi:waypoint x="438" y="250" />
+                <omgdi:waypoint x="533" y="250" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_0azzp4i_di" bpmnElement="Flow_0azzp4i">
+                <omgdi:waypoint x="388" y="192" />
+                <omgdi:waypoint x="388" y="130" />
+                <omgdi:waypoint x="460" y="130" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNShape id="Participant_0qod0gz_di" bpmnElement="Participant_0qod0gz"
+                isHorizontal="true">
+                <omgdc:Bounds x="160" y="340" width="630" height="250" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Event_1jwnr1y_di" bpmnElement="Event_1jwnr1y">
+                <omgdc:Bounds x="212" y="442" width="36" height="36" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Event_19thta4_di" bpmnElement="Event_19thta4">
+                <omgdc:Bounds x="722" y="442" width="36" height="36" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_0ttojsf_di" bpmnElement="Task_B">
+                <omgdc:Bounds x="305" y="420" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_0rxm6q1_di" bpmnElement="Task_E">
+                <omgdc:Bounds x="565" y="420" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Event_12cu2ng_di" bpmnElement="Event_C">
+                <omgdc:Bounds x="467" y="442" width="36" height="36" />
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds x="481" y="485" width="8" height="14" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge id="Flow_1a3yzli_di" bpmnElement="Flow_1a3yzli">
+                <omgdi:waypoint x="248" y="460" />
+                <omgdi:waypoint x="305" y="460" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_09pcqxs_di" bpmnElement="Flow_09pcqxs">
+                <omgdi:waypoint x="665" y="460" />
+                <omgdi:waypoint x="722" y="460" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_0ntd3ys_di" bpmnElement="Flow_0ntd3ys">
+                <omgdi:waypoint x="405" y="460" />
+                <omgdi:waypoint x="467" y="460" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_1r1agfn_di" bpmnElement="Flow_1r1agfn">
+                <omgdi:waypoint x="503" y="460" />
+                <omgdi:waypoint x="565" y="460" />
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>
